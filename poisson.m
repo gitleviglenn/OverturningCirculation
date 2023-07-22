@@ -63,7 +63,7 @@ omega_hc    = zeros(kend,jend); % new values
 omega_total = zeros(kend,jend); % new values
 diff        = zeros(kend,jend);
 rmsdiff     = zeros(errend,1);
-%f    = zeros(kend,jend)+5.;
+%
 f = wap500_temp;
 
 index=1;
@@ -100,7 +100,7 @@ end
 % begin the sweeps that will converge on the solution
 % Gauss-Seidel Relaxation; un are the new values, u are the old values
 %relax=0.7; --> used for amip
-relax=0.7;
+relax=0.9;
 for err=1:errend;
   for k=k0+1:1:kend-1; % loop over longitudes
     for j=j0+index:1:jend-index; % loop over latitudes
@@ -150,12 +150,10 @@ for err=1:errend;
 % set the j values at the poles to a constant 
   un_zmn=mean(un,1);
   for k=k0:1:kend
-    %un(k,jend)=un_zmn(jend); % at the north pole
-    %un(k,j0)=un_zmn(j0);     % at the south pole
-    un(k,jend)=100; %un_zmn(jend); % at the north pole
-    un(k,j0)=100; %un_zmn(j0);     % at the south pole
-    %un(k,jend)=20; %un_zmn(jend); % at the north pole
-    %un(k,j0)=20; %un_zmn(j0);     % at the south pole
+    un(k,jend)=un_zmn(jend); % at the north pole
+    un(k,j0)=un_zmn(j0);     % at the south pole
+    %un(k,jend)=100; %un_zmn(jend); % at the north pole
+    %un(k,j0)=100; %un_zmn(j0);     % at the south pole
   end
 %--------------------------
 
@@ -183,7 +181,13 @@ for k=k0+1:1:kend-1;
   for j=j0+index:1:jend-index; % loop over latitudes
     omega_wc(k,j)=(-1/(a_earth^2*cs(j)^2))*((un(k+1,j)-2*un(k,j)+un(k-1,j))/dlon^2);
     %omega_hc(k,j)=(-1/(a_earth^2*cs(j)))*((cs(j+1)*un(k,j+1)-2*cs(j)*un(k,j)+cs(j-1)*un(k,j-1))/dlat^2);
-    omega_hc(k,j)=(-1/(a_earth*cs(j))^2)*((cs(j)/dlat)^2*(un(k,j+1)-2*un(k,j)+un(k,j-1))+cs(j)*sn(j)*((un(k,j+1)-un(k,j-1))/(2*dlat))+(1/dlon)^2*(un(k+1,j)-2*un(k,j)+un(k-1,j)));  
+    omega_hc(k,j)=(-1/(a_earth*cs(j))^2)*...
+                   ((cs(j)/dlat)^2*(un(k,j+1)-2*un(k,j)+un(k,j-1))+...
+                   cs(j)*sn(j)*((un(k,j+1)-un(k,j-1))/(2*dlat)));%+...
+%
+%    omega_hc(k,j)=(-1/(a_earth*cs(j))^2)*((cs(j)/dlat)^2*(un(k,j+1)-2*un(k,j)+un(k,j-1))+...
+%                   cs(j)*sn(j)*((un(k,j+1)-un(k,j-1))/(2*dlat))+...
+%                   (1/dlon)^2*(un(k+1,j)-2*un(k,j)+un(k-1,j)));  
   end
 end
  % omega_hc(kend,j)=(-1/(a_earth*cs(j))^2)*((cs(j)/dlat)^2*(un(i,j+1)-2*un(i,j)+un(i,j-1))+cs(j)*sn(j)*((un(i,j+1)-un(i,j-1))/(2*dlat))+(1/dlon)^2(un(i+1,j)-2*un(i,j)+un(i-1,j)));
@@ -191,7 +195,12 @@ end
 for j=j0+index:1:jend-index; % loop over latitudes
   omega_wc(kend,j)=(-1/(a_earth^2*cs(j)^2))*((un(k0,j)-2*un(kend,j)+un(kend-1,j))/dlon^2);
   %omega_hc(kend,j)=(-1/(a_earth^2*cs(j)))*((cs(j+1)*un(kend,j+1)-2*cs(j)*un(kend,j)+cs(j-1)*un(kend,j-1))/dlat^2);
-  omega_hc(kend,j)=(-1/(a_earth*cs(j))^2)*((cs(j)/dlat)^2*(un(kend,j+1)-2*un(kend,j)+un(kend,j-1))+cs(j)*sn(j)*((un(kend,j+1)-un(kend,j-1))/(2*dlat))+(1/dlon)^2*(un(k0,j)-2*un(kend,j)+un(kend-1,j)));  
+%
+  omega_hc(kend,j)=(-1/(a_earth*cs(j))^2)*...
+                   ((cs(j)/dlat)^2*(un(kend,j+1)-2*un(kend,j)+un(kend,j-1))+...
+                   cs(j)*sn(j)*((un(kend,j+1)-un(kend,j-1))/(2*dlat)));%+...
+% below is the original
+%  omega_hc(kend,j)=(-1/(a_earth*cs(j))^2)*((cs(j)/dlat)^2*(un(kend,j+1)-2*un(kend,j)+un(kend,j-1))+cs(j)*sn(j)*((un(kend,j+1)-un(kend,j-1))/(2*dlat))+(1/dlon)^2*(un(k0,j)-2*un(kend,j)+un(kend-1,j)));  
   omega_wc(k0,j)=omega_wc(kend,j);
   omega_hc(k0,j)=omega_hc(kend,j);
 end
